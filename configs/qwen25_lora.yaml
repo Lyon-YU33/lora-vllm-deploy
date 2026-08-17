@@ -1,0 +1,84 @@
+### Qwen2.5-7B LoRA 微调配置
+# 这是 LLaMA-Factory 标准的 YAML 训练配置文件
+# 通过 yaml 文件统一管理所有超参数，比命令行参数更清晰、可复用
+#
+# 使用方法:
+#   llamafactory-cli train configs/qwen25_lora.yaml
+#
+# 优势（对比 JSON + 命令行参数）:
+#   1. 所有超参数集中在一个文件，方便版本管理
+#   2. 可直接复制到其他项目复用
+#   3. 支持注释，每个参数都有说明
+#   4. 团队协作时方便对比和讨论参数变更
+
+### ----------------- 模型配置 -----------------
+model_name_or_path: Qwen/Qwen2.5-7B-Instruct   # 基座模型（HF ID 或本地路径）
+trust_remote_code: true                       # Qwen 系列必须开启
+
+### ----------------- 数据配置 -----------------
+dataset: sample_dataset                       # 对应 dataset_info.yaml 中的数据集名
+dataset_dir: data                             # 数据目录
+template: qwen25                              # 对话模板（不同模型用不同模板）
+cutoff_len: 2048                              # 最大序列长度
+max_samples: 100000                           # 最大样本数（调试时可设小）
+
+### ----------------- 微调方法 -----------------
+finetuning_type: lora                         # 微调方式: lora / freeze / full
+
+# LoRA 超参（核心）
+lora_rank: 8                                  # LoRA 秩，决定可训练参数量，8 是常用值
+lora_alpha: 32                                # 缩放系数，通常为 rank 的 4 倍
+lora_dropout: 0.05                            # LoRA dropout，防过拟合
+lora_target:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
+  - gate_proj
+  - up_proj
+  - down_proj
+# lora_target 说明:
+#   - 选择所有线性层可获得更好的微调效果
+#   - 仅选择 q_proj/v_proj 可减少参数量但效果略差
+#   - 7B 模型推荐选择全部 7 个线性层
+
+### ----------------- 训练超参 -----------------
+output_dir: outputs/qwen25-7b-lora            # 输出目录
+overwrite_output_dir: true                    # 覆盖输出目录
+
+# 训练轮次
+num_train_epochs: 3                           # 训练 3 个 epoch（数据量大可减少）
+
+# 批次配置（AutoDL 单卡 RTX 4090 实测推荐）
+per_device_train_batch_size: 4                # 单卡 batch size
+gradient_accumulation_steps: 4                # 梯度累积，等效 batch=16
+# 等效 batch = 4 * 4 = 16，适合 7B LoRA 训练
+
+# 学习率
+learning_rate: 5.0e-5                         # LoRA 推荐 5e-5 ~ 1e-4
+weight_decay: 0.01                            # 权重衰减防过拟合
+max_grad_norm: 1.0                            # 梯度裁剪阈值
+warmup_ratio: 0.03                            # 预热比例（前 3% 步数用小学习率）
+lr_scheduler_type: cosine                     # 学习率调度器: cosine / linear
+
+# 日志与保存
+logging_steps: 10                             # 每 10 步打印一次日志
+save_steps: 500                               # 每 500 步保存一次 checkpoint
+save_total_limit: 3                           # 最多保留 3 个 checkpoint
+plot_loss: true                               # 绘制 loss 曲线
+
+### ----------------- 精度与性能 -----------------
+bf16: true                                    # 使用 BF16（A100/4090 推荐）
+tf32: true                                    # 使用 TF32（Ampere+ 显卡支持）
+
+### ----------------- DeepSpeed 分布式 -----------------
+deepspeed: configs/ds_zero2.json              # DeepSpeed 配置文件
+gradient_checkpointing: true                  # 梯度检查点，节省显存（代价是稍慢）
+
+### ----------------- 随机种子 -----------------
+seed: 42                                      # 随机种子（保证可复现）
+
+### ----------------- 验证集（可选） -----------------
+# val_size: 0.1                              # 从训练集中切 10% 做验证
+# eval_strategy: steps
+# eval_steps: 500

@@ -1,0 +1,29 @@
+# 训练环境依赖（train_env）
+# Python 3.11 + CUDA 12.4
+# 解决原项目 torch 2.5.1 与 2.8.0 混用问题：训练用 2.5.1 稳定版
+
+# PyTorch (cu124)
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+
+# 训练框架
+deepspeed>=0.15.0
+llama-factory==0.9.1
+
+# 微调相关
+peft>=0.13.0
+transformers>=4.45.0
+accelerate>=1.0.0
+bitsandbytes>=0.44.0
+trl>=0.12.0
+
+# 数据处理
+datasets>=3.0.0
+sentencepiece>=0.2.0
+protobuf>=5.0.0
+
+# 工具
+tqdm>=4.66.0
+rich>=13.0.0
+tensorboard>=2.18.0

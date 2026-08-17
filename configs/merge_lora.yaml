@@ -1,0 +1,17 @@
+### 模型导出（合并 LoRA 权重）配置
+# LLaMA-Factory 通过此配置将 LoRA 适配器合并到基座模型
+#
+# 使用方法:
+#   llamafactory-cli export configs/merge_lora.yaml
+
+### ----------------- 模型配置 -----------------
+model_name_or_path: Qwen/Qwen2.5-7B-Instruct   # 基座模型
+adapter_name_or_path: outputs/qwen25-7b-lora    # LoRA 训练输出目录
+template: qwen25                                # 对话模板
+finetuning_type: lora                          # 微调方式（必须与训练时一致）
+
+### ----------------- 导出配置 -----------------
+export_dir: merged_model/qwen25-7b-lora-merged # 合并后模型保存路径
+export_size: 4                                  # 单文件最大 4GB
+export_device: cpu                              # 用 CPU 导出避免显存占用
+export_legacy_format: false                     # 使用 safetensors 格式（推荐）

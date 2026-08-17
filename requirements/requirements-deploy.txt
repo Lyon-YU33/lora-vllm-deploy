@@ -1,0 +1,23 @@
+# 部署环境依赖（deploy_env）
+# Python 3.11 + CUDA 12.6
+# 量化 + 推理部署共用一个环境，避免原项目 gptqmodel 与 llama-factory 冲突
+
+# 请先按 vLLM 官方 GPU 安装指南安装与 CUDA 驱动匹配的 vLLM 二进制。
+# vLLM 会解析其匹配的 PyTorch 依赖；本文件不手工锁定 torch/vision/audio。
+
+# 量化框架（用 AutoGPTQ 替代 gptqmodel，依赖更稳定）
+auto-gptq>=0.7.1
+optimum>=1.23.0
+
+# 推理引擎
+vllm==0.11.0
+
+# 基础依赖
+transformers>=4.57.1
+accelerate>=1.10.1
+safetensors>=0.6.2
+sentencepiece>=0.2.0
+
+# 工具
+tqdm>=4.66.0
+rich>=13.0.0

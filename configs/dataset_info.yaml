@@ -1,0 +1,20 @@
+### dataset_info
+# 数据集信息配置文件
+# LLaMA-Factory 通过此文件识别训练/验证数据
+# 数据集名称与 data/ 目录下的文件名对应
+
+# 文本摘要训练集（项目内置示例数据）
+sample_dataset:
+  file_name: sample_dataset.json
+  columns:
+    prompt: instruction
+    query: input
+    response: output
+
+# 如果要用自己的数据集，按下面格式追加：
+# my_train_data:
+#   file_name: train.json
+#   columns:
+#     prompt: instruction
+#     query: input
+#     response: output
